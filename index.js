@@ -1,17 +1,16 @@
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const { Configuration, OpenAIApi } = require("openai");
+const { OpenAI } = require("openai");
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-const openai = new OpenAIApi(
-  new Configuration({
-    apiKey: process.env.OPENAI_API_KEY,
-  })
-);
+// OpenAI 인스턴스 생성
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 const basePrompt = (question, cardMeanings) => `
 당신은 타로 마스터입니다. 사용자의 질문과 아래 카드 의미를 보고 리딩을 해주세요.
@@ -35,18 +34,21 @@ app.post("/generate", async (req, res) => {
   ).join("\n");
 
   try {
-    const completion = await openai.createChatCompletion({
+    const chatCompletion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
-      messages: [{
-        role: "user",
-        content: basePrompt(question, cardMeanings),
-      }],
+      messages: [
+        {
+          role: "user",
+          content: basePrompt(question, cardMeanings),
+        },
+      ],
       temperature: 0.9,
     });
 
-    res.json({ result: completion.data.choices[0].message.content.trim() });
+    const result = chatCompletion.choices[0].message.content.trim();
+    res.json({ result });
   } catch (error) {
-    console.error("Error:", error.response?.data || error.message);
+    console.error("OpenAI API 오류:", error.message);
     res.status(500).json({ error: "AI 응답 생성 중 오류 발생" });
   }
 });
