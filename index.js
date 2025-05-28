@@ -12,6 +12,17 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// ✨ GPT 응답을 150자 이내로 자연스럽게 잘라주는 함수
+function trimTo150(text) {
+  const clean = text.replace(/\s+/g, " ").trim(); // 공백 정리
+  if (clean.length <= 150) return clean;
+
+  const end = clean.lastIndexOf('.', 150); // 150자 내 마지막 마침표 위치
+  if (end > 50) return clean.slice(0, end + 1); // 자연스럽게 마침표까지 자르기
+
+  return clean.slice(0, 150) + '…'; // 마침표가 없으면 그냥 150자 자르고 '…' 붙이기
+}
+
 app.post("/generate", async (req, res) => {
   const { question, cards } = req.body;
 
@@ -48,7 +59,8 @@ app.post("/generate", async (req, res) => {
       max_tokens: 300
     });
 
-    const result = chatCompletion.choices[0].message.content.trim();
+    const rawResult = chatCompletion.choices[0].message.content.trim();
+    const result = trimTo150(rawResult); // ✨ 150자 이내로 정제
     res.json({ result });
   } catch (error) {
     console.error("OpenAI API 오류:", error.message);
