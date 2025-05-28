@@ -12,38 +12,40 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const basePrompt = (question, cardMeanings) => `
-너는 타로 리더야. 사용자가 입력한 질문과 선택된 타로 카드 의미를 바탕으로 조언을 줘.
-
-반드시 다음 기준을 지켜줘:
-1. 말투는 친구처럼 말하는 편한 반말
-2. 100자 이내로 요약
-3. 실천할 수 있게 조언으로 마무리
-
-[질문]
-${question}
-
-[카드 해석 요약]
-${cardMeanings}
-`;
-
 app.post("/generate", async (req, res) => {
   const { question, cards } = req.body;
 
-  const cardMeanings = cards.map(
-    (c, i) => `${i + 1}번째 카드: ${c.name} (${c.position}) - ${c.meaning}`
-  ).join("\n");
+  const messages = [
+    {
+      role: "system",
+      content: `
+너는 타로 리딩을 해주는 친구 같은 AI야. 사용자가 뽑은 타로 카드와 질문 내용을 바탕으로,
+현실적인 조언을 150자 이내의 반말로 해줘. 다음을 꼭 지켜:
+
+- 말투는 친구처럼 반말
+- 맞춤법 철저히 지켜. 오타 없게
+- 너무 긍정적이거나 부정적이지 않게 균형 있게 말해
+- 구체적인 방향 제시 (실행 유도)
+- '[조언]' 같은 말 붙이지 말고, 바로 시작
+- 답변은 150자 이내로
+
+예시:
+- 마음은 있지만 지금은 타이밍이 아니야. 너무 조급해하지 말고 너 자신부터 챙겨봐.
+- 너무 신중하게 고민만 하지 말고, 가볍게 움직여봐. 의외의 기회가 올 수도 있어.
+      `.trim()
+    },
+    {
+      role: "user",
+      content: `질문: ${question}\n카드: ${JSON.stringify(cards)}`
+    }
+  ];
 
   try {
     const chatCompletion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
-      messages: [
-        {
-          role: "user",
-          content: basePrompt(question, cardMeanings),
-        },
-      ],
-      temperature: 0.9,
+      messages,
+      temperature: 0.7,
+      max_tokens: 300
     });
 
     const result = chatCompletion.choices[0].message.content.trim();
