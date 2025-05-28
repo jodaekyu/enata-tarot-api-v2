@@ -7,10 +7,11 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-const openai = new OpenAIApi(configuration);
+const openai = new OpenAIApi(
+  new Configuration({
+    apiKey: process.env.OPENAI_API_KEY,
+  })
+);
 
 const basePrompt = (question, cardMeanings) => `
 당신은 타로 마스터입니다. 사용자의 질문과 아래 카드 의미를 보고 리딩을 해주세요.
