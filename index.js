@@ -14,7 +14,7 @@ apiKey: process.env.OPENAI_API_KEY,
 const openai = new OpenAIApi(configuration);
 
  // 프롬프트 긍정적 + 부정적 조언 모두 가능하게 설정
-const basePrompt = (question, cardMeanings) = `
+const basePrompt = (question, cardMeanings) => `
 당신은 타로 마스터입니다. 사용자가 던진 고민 질문에 대해 아래 3장의 카드 의미를 참고하여 타로 리딩을 해주세요. 답변은 간결하고 핵심적으로 해주세요. 
  반드시 고민과 카드의 상징을 연결해 해석해주세요.
  긍정적인 조언만 하지 말고, 필요한 경우 부정적인 측면도 정직하게 조언해주세요.
