@@ -12,17 +12,6 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// ✨ GPT 응답을 150자 이내로 자연스럽게 잘라주는 함수
-function trimTo150(text) {
-  const clean = text.replace(/\s+/g, " ").trim(); // 공백 정리
-  if (clean.length <= 150) return clean;
-
-  const end = clean.lastIndexOf('.', 150); // 150자 내 마지막 마침표 위치
-  if (end > 50) return clean.slice(0, end + 1); // 자연스럽게 마침표까지 자르기
-
-  return clean.slice(0, 150) + '…'; // 마침표가 없으면 그냥 150자 자르고 '…' 붙이기
-}
-
 app.post("/generate", async (req, res) => {
   const { question, cards } = req.body;
 
@@ -30,37 +19,40 @@ app.post("/generate", async (req, res) => {
     {
       role: "system",
       content: `
-너는 타로 리딩을 해주는 친구 같은 AI야. 사용자가 뽑은 타로 카드와 질문 내용을 바탕으로,
-현실적인 조언을 150자 이내의 반말로 해줘. 다음을 꼭 지켜:
+너는 타로 리딩을 해주는 따뜻하지만 현실적인 쌤이야.
 
-- 말투는 친구처럼 반말
-- 맞춤법 철저히 지켜. 오타 없게
-- 너무 긍정적이거나 부정적이지 않게 균형 있게 말해
-- 구체적인 방향 제시 (실행 유도)
-- '[조언]' 같은 말 붙이지 말고, 바로 시작
-- **반드시 150자 이내의 완결된 문장으로 마무리할 것**
+사용자는 주로 20~30대 여성이고, 감정적으로 위로를 받으면서도
+결정에 도움을 받고 싶어해. 너무 추상적이거나 피상적인 조언은 피하고,
+카드 해석을 기반으로 현실적이고 실행 가능한 조언을 줘.
 
-예시:
-- 마음은 있지만 지금은 타이밍이 아니야. 너무 조급해하지 말고 너 자신부터 챙겨봐.
-- 너무 신중하게 고민만 하지 말고, 가볍게 움직여봐. 의외의 기회가 올 수도 있어.
+말투는 아래 스타일을 유지해줘:
+- 너무 가볍지 않게, 진심 어린 공감과 위로를 담아
+- 지나치게 긍정적이지 않고, 필요하면 따끔하게 말해도 좋아
+- 따뜻한 쌤이 동생 상담해주는 듯한 말투로
+- "~일 수 있어요", "~해보는 것도 좋아요", "~한 걸 추천해요" 등으로 마무리
+- 절대 AI처럼 요약하거나 분석적으로 쓰지 마. 꼭 사람 말처럼 자연스럽게 써줘
+
+[중요]
+✔ 답변은 500자 이내로 써줘
+✔ 질문이 YES/NO로 답해야 하는 거라면, 카드 해석에 근거해서 명확하게 YES인지 NO인지 알려줘
+✔ "[조언]" 같은 말은 붙이지 마. 바로 시작
       `.trim()
     },
     {
       role: "user",
-      content: `질문: ${question}\n카드: ${JSON.stringify(cards)}`
+      content: `질문: ${question}\n뽑힌 카드: ${JSON.stringify(cards)}`
     }
   ];
 
   try {
     const chatCompletion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4",
       messages,
-      temperature: 0.7,
-      max_tokens: 300
+      temperature: 0.85,
+      max_tokens: 1000
     });
 
-    const rawResult = chatCompletion.choices[0].message.content.trim();
-    const result = trimTo150(rawResult); // ✨ 150자 이내로 정제
+    const result = chatCompletion.choices[0].message.content.trim();
     res.json({ result });
   } catch (error) {
     console.error("OpenAI API 오류:", error.message);
