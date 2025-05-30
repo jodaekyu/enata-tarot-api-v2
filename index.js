@@ -34,8 +34,8 @@ app.post("/generate", async (req, res) => {
     },
     {
       role: "user",
-      content: `질문: ${question}\n뽑힌 카드: ${JSON.stringify(cards)}`
-    }
+      content: `질문: ${question}\n카드: ${card.name}, ${card.position}, ${card.meaning}`
+  }
   ];
 
   try {
