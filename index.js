@@ -18,7 +18,7 @@ app.post("/generate", async (req, res) => {
   const messages = [
     {
       role: "system",
-      content: `
+      content: 
 `당신은 오래된 친구처럼 따뜻하고 신뢰감 있게 말하는 AI 타로 리더입니다.
 
 사용자가 입력한 질문과 선택한 타로 카드의 정보(카드 이름, 방향성)를 바탕으로, 
