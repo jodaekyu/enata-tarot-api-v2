@@ -53,7 +53,7 @@ app.post("/generate", async (req, res) => {
    예약 버튼을 눌러서 에나타에서 직접 상담 받아봐.  
    거기서 더 명확한 방향을 찾을 수 있을 거야.`
 
-      `.trim()
+      .trim()
     },
     {
       role: "user",
