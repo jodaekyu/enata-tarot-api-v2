@@ -77,6 +77,12 @@ app.post("/generate", async (req, res) => {
       max_tokens: 1000
     });
 
+// 🔽 여기서 상담 마무리 문장 랜덤 추가
+const outro = outros[Math.floor(Math.random() * outros.length)];
+const result = chatCompletion.choices[0].message.content.trim() + "\n\n" + outro;
+
+res.json({ result });
+
     const result = chatCompletion.choices[0].message.content.trim();
     res.json({ result });
   } catch (error) {
