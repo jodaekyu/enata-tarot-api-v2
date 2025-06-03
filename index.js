@@ -61,8 +61,6 @@ const outro = outros[Math.floor(Math.random() * outros.length)];
 const result = chatCompletion.choices[0].message.content.trim() + "\n\n" + outro;
 res.json({ result });
 
-    const result = chatCompletion.choices[0].message.content.trim();
-    res.json({ result });
   } catch (error) {
     console.error("OpenAI API 오류:", error.message);
     res.status(500).json({ error: "AI 응답 생성 중 오류 발생" });
